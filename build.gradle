@@ -1,0 +1,53 @@
+plugins {
+	id 'java-gradle-plugin'
+	id 'groovy'
+	id 'com.gradle.plugin-publish' version '0.10.1'
+}
+
+apply from: 'gradle/integration-test.gradle'
+apply from: 'gradle/functional-test.gradle'
+
+group 'de.clashsoft'
+version '0.1.1'
+description 'The GenTreeSrc Gradle Plugin.'
+
+pluginBundle {
+	website = 'https://github.com/Clashsoft/GenTreeSrc'
+	vcsUrl = 'https://github.com/Clashsoft/GenTreeSrc'
+	description = project.description
+	tags = [ 'generate', 'ast', 'gentreesrc' ]
+
+	plugins {
+		gentreesrcPlugin {
+			displayName = 'GenTreeSrc'
+		}
+	}
+
+	mavenCoordinates {
+		groupId = project.group
+		artifactId = project.name
+		version = project.version
+	}
+}
+
+gradlePlugin {
+	plugins {
+		gentreesrcPlugin {
+			id = 'de.clashsoft.gentreesrc-gradle'
+			implementationClass = 'de.clashsoft.gentreesrc.gradle.GenTreeSrcPlugin'
+		}
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	// https://mvnrepository.com/artifact/junit/junit
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+
+	testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4') {
+		exclude group: 'org.codehaus.groovy'
+	}
+}
