@@ -14,3 +14,8 @@
 + The plugin now adds the `gentreesrcTestJava` task.
 + The plugin now adds a dependency on `gentreesrcTestJava` to the `compileTestJava` task.
 + The plugin now adds the task output directory as a source directory of `test.java`.
+
+# GenTreeSrc Gradle Plugin v0.2.1
+
+* Fixed the output directory of the `main` task being added to the `test` source directories. #3
+* The plugin now uses static Groovy compilation.
