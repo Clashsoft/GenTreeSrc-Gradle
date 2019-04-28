@@ -19,3 +19,10 @@
 
 * Fixed the output directory of the `main` task being added to the `test` source directories. #3
 * The plugin now uses static Groovy compilation.
+
+# GenTreeSrc Gradle Plugin v0.3.0
+
+* Bumped minimum tool version to `0.4.0`.
+* Fixed an NPE when requested tool dependency version is `null`.
+* The `gentreesrc*Java` tasks are now skipped if the `src/*/gentreesrc` directory does not exist. #4
+* The tool is now invoked with the `--delete-old` option. #5
