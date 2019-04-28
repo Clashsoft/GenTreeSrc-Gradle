@@ -1,5 +1,7 @@
 package de.clashsoft.gentreesrc.gradle
 
+import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -11,43 +13,47 @@ import org.gradle.api.tasks.SourceSetContainer
 
 class GenTreeSrcPlugin implements Plugin<Project> {
 	@Override
+	@CompileStatic
 	void apply(Project project) {
-		String language = 'java'
-		String languageSuffix = language.capitalize()
+		final String language = 'java'
+		final String languageSuffix = language.capitalize()
 
 		// configuration
-		String configurationName = 'gentreesrc'
-		Configuration configuration = project.configurations.create(configurationName)
+		final String configurationName = 'gentreesrc'
+		final Configuration configuration = project.configurations.create(configurationName)
 
 		configuration.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-			String version = details.requested.version
+			final String version = details.requested.version
 			if (version.startsWith('0.1') || version.startsWith('0.2') || version == '0.3.0') {
 				details.useVersion('0.3.1')
-				details.because('gentreesrc versions before 0.3.1 do not support the command-line syntax required by the ' +
-						'plugin')
+				details.because('gentreesrc versions before 0.3.1 do not support the command-line syntax required by' +
+						' ' +
+						'the plugin')
 			}
 		}
 
-		for (String sourceSet : [ 'main', 'test' ]) {
-			String sourceSetSuffix = sourceSet == 'main' ? '' : sourceSet.capitalize()
+		for (String s : [ 'main', 'test' ]) {
+			// W/A for capture problem, see https://github.com/Clashsoft/GenTreeSrc-Gradle/issues/3
+			final String sourceSet = s
+			final String sourceSetSuffix = sourceSet == 'main' ? '' : sourceSet.capitalize()
 
-			String taskName = configurationName + sourceSetSuffix + languageSuffix
-			String inputDir = "src/$sourceSet/gentreesrc/"
-			String outputDir = "$project.buildDir/generated-src/gentreesrc/$sourceSet/$language"
+			final String taskName = configurationName + sourceSetSuffix + languageSuffix
+			final String inputDir = "src/$sourceSet/gentreesrc/"
+			final String outputDir = "$project.buildDir/generated-src/gentreesrc/$sourceSet/$language"
 
 			// task
-			project.tasks.register(taskName, JavaExec) {
-				classpath = configuration
-				main = 'de.clashsoft.gentreesrc.Main'
-				args = [ '-o', outputDir, inputDir ]
+			project.tasks.register(taskName, JavaExec, { JavaExec it ->
+				it.classpath = configuration
+				it.main = 'de.clashsoft.gentreesrc.Main'
+				it.args = [ '-o', outputDir, inputDir ]
 
-				inputs.dir(inputDir)
-				outputs.dir(outputDir)
-			}
+				it.inputs.dir(inputDir)
+				it.outputs.dir(outputDir)
+			} as Action<JavaExec>)
 
 			project.plugins.withType(JavaPlugin) {
-				String compileTaskName = "compile${ sourceSetSuffix }Java"
-				SourceSetContainer sourceSets = project.convention.getPlugin(JavaPluginConvention).sourceSets
+				final String compileTaskName = "compile${ sourceSetSuffix }Java"
+				final SourceSetContainer sourceSets = project.convention.getPlugin(JavaPluginConvention).sourceSets
 
 				// configure source directory
 				sourceSets.getByName(sourceSet).java.srcDir(project.files(outputDir).builtBy(taskName))
