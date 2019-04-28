@@ -12,11 +12,11 @@ class FunctionalTest extends Specification {
 	TemporaryFolder testProjectDir = new TemporaryFolder()
 
 	def setup() {
-		testProjectDir.newFile('settings.gradle') << """
+		testProjectDir.newFile('settings.gradle') << /* language=Groovy */ """
 		rootProject.name = 'test'
 		"""
 
-		testProjectDir.newFile('build.gradle') << """
+		testProjectDir.newFile('build.gradle') << /* language=Groovy */ """
 		plugins {
 			id 'java'
 			id 'de.clashsoft.gentreesrc-gradle'
@@ -28,6 +28,9 @@ class FunctionalTest extends Specification {
 		
 		dependencies {
 			gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '+'
+			
+			// https://mvnrepository.com/artifact/junit/junit
+			testCompile group: 'junit', name: 'junit', version: '4.12'
 		}
 		"""
 
@@ -45,13 +48,28 @@ class FunctionalTest extends Specification {
 			B(a: A)
 		}
 		"""
+
+		testProjectDir.newFolder('src', 'test', 'java', 'com', 'example')
+		testProjectDir.newFile('src/test/java/com/example/Test.java') << /* language=Java */ """
+		package com.example;
+
+		public class Test {
+			@org.junit.Test
+			public void test() {
+				Foo r = Bar.of("abc");
+				Foo z = Baz.of(123);
+				
+				A a = B.of(A.of());
+			}
+		}
+		"""
 	}
 
 	def run() {
 		when:
 		def result = GradleRunner.create()
 				.withProjectDir(testProjectDir.root)
-				.withArguments('gentreesrcJava', 'gentreesrcTestJava')
+				.withArguments('check')
 				.withPluginClasspath()
 				.build()
 
@@ -66,6 +84,7 @@ class FunctionalTest extends Specification {
 		then:
 		result.task(":gentreesrcJava").outcome == SUCCESS
 		result.task(":gentreesrcTestJava").outcome == SUCCESS
+		result.task(":check").outcome == SUCCESS
 
 		def mainOutputDir = new File(testProjectDir.root, "build/generated-src/gentreesrc/main/java/")
 		new File(mainOutputDir, 'com/example/Foo.java').exists()
