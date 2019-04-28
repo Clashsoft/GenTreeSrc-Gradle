@@ -1,10 +1,13 @@
 package de.clashsoft.gentreesrc.gradle
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import static org.gradle.testkit.runner.TaskOutcome.FAILED
+import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class FunctionalTest extends Specification {
@@ -48,26 +51,10 @@ class FunctionalTest extends Specification {
 			B(a: A)
 		}
 		"""
-
-		testProjectDir.newFolder('src', 'test', 'java', 'com', 'example')
-		testProjectDir.newFile('src/test/java/com/example/Test.java') << /* language=Java */ """
-		package com.example;
-
-		public class Test {
-			@org.junit.Test
-			public void test() {
-				Foo r = Bar.of("abc");
-				Foo z = Baz.of(123);
-				
-				A a = B.of(A.of());
-			}
-		}
-		"""
 	}
 
-	def run() {
-		when:
-		def result = GradleRunner.create()
+	BuildResult run() {
+		BuildResult result = GradleRunner.create()
 				.withProjectDir(testProjectDir.root)
 				.withArguments('check')
 				.withPluginClasspath()
@@ -80,6 +67,28 @@ class FunctionalTest extends Specification {
 			println it
 		}
 		println "-" * 75
+		return result
+	}
+
+	def runsWithTestDir() {
+		given:
+		testProjectDir.newFolder('src', 'test', 'java', 'com', 'example')
+		testProjectDir.newFile('src/test/java/com/example/Test.java') << /* language=Java */"""
+		package com.example;
+
+		public class Test {
+			@org.junit.Test
+			public void test() {
+				Foo r = Bar.of("abc");
+				Foo z = Baz.of(123);
+				
+				A a = B.of(A.of());
+			}
+		}
+		"""
+
+		when:
+		def result = run()
 
 		then:
 		result.task(":gentreesrcJava").outcome == SUCCESS
@@ -94,5 +103,18 @@ class FunctionalTest extends Specification {
 		def testOutputDir = new File(testProjectDir.root, "build/generated-src/gentreesrc/test/java/")
 		new File(testOutputDir, 'com/example/A.java').exists()
 		new File(testOutputDir, 'com/example/B.java').exists()
+	}
+
+	def runsWithoutTestDir() {
+		given:
+		new File(testProjectDir.root, 'src/test/').deleteDir()
+
+		when:
+		def result = run()
+
+		then:
+		result.task(":gentreesrcJava").outcome == SUCCESS
+		result.task(":gentreesrcTestJava").outcome == SKIPPED
+		result.task(":check").outcome != FAILED
 	}
 }

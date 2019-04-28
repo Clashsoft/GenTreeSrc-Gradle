@@ -49,6 +49,8 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 
 				it.inputs.dir(inputDir)
 				it.outputs.dir(outputDir)
+
+				it.onlyIf { project.file(inputDir).exists() }
 			} as Action<JavaExec>)
 
 			project.plugins.withType(JavaPlugin) {
