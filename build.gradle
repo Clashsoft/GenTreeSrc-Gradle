@@ -8,7 +8,7 @@ apply from: 'gradle/integration-test.gradle'
 apply from: 'gradle/functional-test.gradle'
 
 group 'de.clashsoft'
-version '0.1.1'
+version '0.2.0'
 description 'The GenTreeSrc Gradle Plugin.'
 
 pluginBundle {
