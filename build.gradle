@@ -12,8 +12,8 @@ version '0.2.0'
 description 'The GenTreeSrc Gradle Plugin.'
 
 pluginBundle {
-	website = 'https://github.com/Clashsoft/GenTreeSrc'
-	vcsUrl = 'https://github.com/Clashsoft/GenTreeSrc'
+	website = 'https://github.com/Clashsoft/GenTreeSrc-Gradle'
+	vcsUrl = 'https://github.com/Clashsoft/GenTreeSrc-Gradle'
 	description = project.description
 	tags = [ 'generate', 'ast', 'gentreesrc' ]
 
