@@ -7,9 +7,9 @@ plugins {
 apply from: 'gradle/integration-test.gradle'
 apply from: 'gradle/functional-test.gradle'
 
-group 'de.clashsoft'
-version '0.3.0'
-description 'The GenTreeSrc Gradle Plugin.'
+group = 'de.clashsoft'
+version = 'git describe --tags'.execute().text[1..-2] // strip v and \n
+description = 'The GenTreeSrc Gradle Plugin.'
 
 pluginBundle {
 	website = 'https://github.com/Clashsoft/GenTreeSrc-Gradle'
