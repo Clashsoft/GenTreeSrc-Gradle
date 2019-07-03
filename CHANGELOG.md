@@ -26,3 +26,8 @@
 * Fixed an NPE when requested tool dependency version is `null`.
 * The `gentreesrc*Java` tasks are now skipped if the `src/*/gentreesrc` directory does not exist. #4
 * The tool is now invoked with the `--delete-old` option. #5
+
+# GenTreeSrc Gradle Plugin v0.4.0
+
+* Fixed tool versions `0.10+` resolving as `0.4.0`. #6
+* Updated the configuration code to mimic the ANTLR plugin.

@@ -14,7 +14,7 @@ and can be installed via the `plugins` DSL in `build.gradle`:
 plugins {
 	// ...
 	id 'java'
-	id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
+	id 'de.clashsoft.gentreesrc-gradle' version '0.4.0'
 	// ...
 }
 
