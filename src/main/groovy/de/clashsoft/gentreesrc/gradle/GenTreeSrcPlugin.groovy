@@ -34,7 +34,7 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 				details.useVersion('+')
 				details.because('latest version')
 			}
-			else if (version.startsWith('0.1') || version.startsWith('0.2') || version.startsWith('0.3')) {
+			else if (version.startsWith('0.1.') || version.startsWith('0.2.') || version.startsWith('0.3.')) {
 				details.useVersion(MIN_TOOL_VERSION)
 				details.because('gentreesrc versions before 0.4.0 do not support the command-line syntax required by' +
 						' ' +
