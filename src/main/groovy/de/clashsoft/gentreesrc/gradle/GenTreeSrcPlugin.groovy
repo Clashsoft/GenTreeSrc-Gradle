@@ -2,6 +2,7 @@ package de.clashsoft.gentreesrc.gradle
 
 import de.clashsoft.gentreesrc.gradle.internal.GenTreeSrcVirtualDirectoryImpl
 import groovy.transform.CompileStatic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -26,21 +27,23 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 		project.pluginManager.apply(JavaPlugin)
 
 		// configuration
-		final Configuration configuration = project.configurations.create(CONFIGURATION_NAME)
-
-		configuration.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-			final String version = details.requested.version
-			if (version == null) {
-				details.useVersion('+')
-				details.because('latest version')
+		project.configurations.register(CONFIGURATION_NAME, { Configuration it ->
+			it.description = 'The GenTreeSrc libraries to use for this project.'
+			it.visible = false
+			it.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+				final String version = details.requested.version
+				if (version == null) {
+					details.useVersion('+')
+					details.because('latest version')
+				}
+				else if (version.startsWith('0.1.') || version.startsWith('0.2.') || version.startsWith('0.3.')) {
+					details.useVersion(MIN_TOOL_VERSION)
+					details.because('gentreesrc versions before 0.4.0 do not support the command-line syntax required' +
+							' ' +
+							'by the plugin')
+				}
 			}
-			else if (version.startsWith('0.1.') || version.startsWith('0.2.') || version.startsWith('0.3.')) {
-				details.useVersion(MIN_TOOL_VERSION)
-				details.because('gentreesrc versions before 0.4.0 do not support the command-line syntax required by' +
-						' ' +
-						'the plugin')
-			}
-		}
+		} as Action<Configuration>)
 
 		project.convention.getPlugin(JavaPluginConvention).sourceSets.each {
 			configureSourceSet(project, it)
