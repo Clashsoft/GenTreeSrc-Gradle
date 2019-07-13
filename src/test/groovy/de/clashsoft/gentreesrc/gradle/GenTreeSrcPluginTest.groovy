@@ -2,11 +2,11 @@ package de.clashsoft.gentreesrc.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.JavaExec
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
 
-import static org.hamcrest.CoreMatchers.*
+import static org.hamcrest.CoreMatchers.hasItem
+import static org.hamcrest.CoreMatchers.notNullValue
 import static org.junit.Assert.assertThat
 
 class GenTreeSrcPluginTest {
@@ -24,8 +24,8 @@ class GenTreeSrcPluginTest {
 		project.pluginManager.apply 'java'
 		project.pluginManager.apply 'de.clashsoft.gentreesrc-gradle'
 
-		assertThat(project.tasks.gentreesrcJava, instanceOf(JavaExec))
-		assertThat(project.tasks.gentreesrcTestJava, instanceOf(JavaExec))
+		assertThat(project.tasks.gentreesrcJava, notNullValue())
+		assertThat(project.tasks.gentreesrcTestJava, notNullValue())
 		assertThat(project.tasks.compileJava.dependsOn, hasItem('gentreesrcJava'))
 		assertThat(project.tasks.compileTestJava.dependsOn, hasItem('gentreesrcTestJava'))
 	}

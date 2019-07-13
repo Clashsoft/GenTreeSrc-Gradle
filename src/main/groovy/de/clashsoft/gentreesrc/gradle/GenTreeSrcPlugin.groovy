@@ -12,7 +12,6 @@ import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.internal.tasks.DefaultSourceSet
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSet
 
 @CompileStatic
@@ -73,9 +72,14 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 		final String outputDirName = "$project.buildDir/generated-src/gentreesrc/$sourceSet.name/java"
 		final File outputDir = project.file(outputDirName)
 
-		project.tasks.register(taskName, JavaExec) {
-			configureTask(it, srcDir, outputDir)
-		}
+		project.tasks.register(taskName, GenTreeSrcTask, { GenTreeSrcTask it ->
+			it.description = "Processes the $sourceSet.name GenTreeSrc definitions."
+
+			// 4) set up convention mapping for default sources (allows user to not have to specify)
+			it.outputDirectory = outputDir
+			it.inputDirectory = srcDir
+			it.classpath = project.configurations.getByName(CONFIGURATION_NAME)
+		} as Action<GenTreeSrcTask>)
 
 		// 3) Set up the gentreesrc output directory (adding to javac inputs!)
 		sourceSet.java.srcDir(outputDir)
@@ -84,16 +88,5 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 		project.tasks.named(sourceSet.compileJavaTaskName) { Task it ->
 			it.dependsOn taskName
 		}
-	}
-
-	static void configureTask(JavaExec it, File inputDir, File outputDir) {
-		it.classpath = it.project.configurations.getByName(CONFIGURATION_NAME)
-		it.main = MAIN_CLASS_NAME
-		it.args = [ '-o', outputDir.toString(), '--delete-old', inputDir.toString() ]
-
-		it.inputs.dir(inputDir)
-		it.outputs.dir(outputDir)
-
-		it.onlyIf { inputDir.exists() }
 	}
 }

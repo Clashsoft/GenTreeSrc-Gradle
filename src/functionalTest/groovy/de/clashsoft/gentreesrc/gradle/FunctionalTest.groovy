@@ -6,9 +6,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-import static org.gradle.testkit.runner.TaskOutcome.FAILED
-import static org.gradle.testkit.runner.TaskOutcome.SKIPPED
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import static org.gradle.testkit.runner.TaskOutcome.*
 
 class FunctionalTest extends Specification {
 	@Rule
@@ -114,7 +112,7 @@ class FunctionalTest extends Specification {
 
 		then:
 		result.task(":gentreesrcJava").outcome == SUCCESS
-		result.task(":gentreesrcTestJava").outcome == SKIPPED
+		result.task(":gentreesrcTestJava").outcome == NO_SOURCE
 		result.task(":check").outcome != FAILED
 	}
 }
