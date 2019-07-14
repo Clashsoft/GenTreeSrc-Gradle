@@ -20,6 +20,11 @@ public class GenTreeSrcTask extends DefaultTask
 
 	private boolean deleteOld = true;
 
+	private boolean visitPar     = true;
+	private boolean visitReturn  = true;
+	private boolean visitDefault = false;
+	private boolean visitParent  = false;
+
 	private List<String> extraArgs = new ArrayList<>();
 
 	// =============== Properties ===============
@@ -71,6 +76,50 @@ public class GenTreeSrcTask extends DefaultTask
 		this.deleteOld = deleteOld;
 	}
 
+	@Input
+	public boolean isVisitPar()
+	{
+		return this.visitPar;
+	}
+
+	public void setVisitPar(boolean visitPar)
+	{
+		this.visitPar = visitPar;
+	}
+
+	@Input
+	public boolean isVisitReturn()
+	{
+		return this.visitReturn;
+	}
+
+	public void setVisitReturn(boolean visitReturn)
+	{
+		this.visitReturn = visitReturn;
+	}
+
+	@Input
+	public boolean isVisitDefault()
+	{
+		return this.visitDefault;
+	}
+
+	public void setVisitDefault(boolean visitDefault)
+	{
+		this.visitDefault = visitDefault;
+	}
+
+	@Input
+	public boolean isVisitParent()
+	{
+		return this.visitParent;
+	}
+
+	public void setVisitParent(boolean visitParent)
+	{
+		this.visitParent = visitParent;
+	}
+
 	// --------------- Extra Args ---------------
 
 	@Input
@@ -114,6 +163,22 @@ public class GenTreeSrcTask extends DefaultTask
 			if (this.isDeleteOld())
 			{
 				args.add("--delete-old");
+			}
+			if (!this.visitPar)
+			{
+				args.add("--no-visit-par");
+			}
+			if (!this.visitReturn)
+			{
+				args.add("--visit-void");
+			}
+			if (this.visitDefault)
+			{
+				args.add("--visit-default");
+			}
+			if (this.visitParent)
+			{
+				args.add("--visit-parent");
 			}
 
 			args.add("-o");
