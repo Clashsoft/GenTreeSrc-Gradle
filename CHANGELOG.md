@@ -31,3 +31,9 @@
 
 * Fixed tool versions `0.10+` resolving as `0.4.0`. #6
 * Updated the configuration code to mimic the ANTLR plugin.
+
+# GenTreeSrc Gradle Plugin v0.5.0
+
++ Added a dedicated `GenTreeSrcTask` type. #7
+* GenTreeSrc tasks are no longer debuggable. #8
+* The `gentreesrc` configuration is now created lazily.
