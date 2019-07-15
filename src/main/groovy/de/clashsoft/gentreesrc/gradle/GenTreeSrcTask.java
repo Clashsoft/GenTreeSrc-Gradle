@@ -25,6 +25,8 @@ public class GenTreeSrcTask extends DefaultTask
 	private boolean visitDefault = false;
 	private boolean visitParent  = false;
 
+	private String language;
+
 	private List<String> extraArgs = new ArrayList<>();
 
 	// =============== Properties ===============
@@ -120,6 +122,18 @@ public class GenTreeSrcTask extends DefaultTask
 		this.visitParent = visitParent;
 	}
 
+	@Input
+	@Optional
+	public String getLanguage()
+	{
+		return this.language;
+	}
+
+	public void setLanguage(String language)
+	{
+		this.language = language;
+	}
+
 	// --------------- Extra Args ---------------
 
 	@Input
@@ -180,6 +194,11 @@ public class GenTreeSrcTask extends DefaultTask
 			{
 				args.add("--visit-parent");
 			}
+			if (this.language != null)
+			{
+				args.add("--language");
+				args.add(this.language);
+			}
 
 			args.add("-o");
 			args.add(this.getOutputDirectory().toString());
@@ -187,8 +206,6 @@ public class GenTreeSrcTask extends DefaultTask
 			args.add(this.getInputDirectory().toString());
 
 			spec.setArgs(args);
-
-			System.out.println(spec.getCommandLine());
 		});
 	}
 }
