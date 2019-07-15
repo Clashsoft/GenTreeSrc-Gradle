@@ -1,90 +1,72 @@
 package de.clashsoft.gentreesrc.gradle
 
+import groovy.io.FileType
+import groovy.transform.CompileStatic
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import static org.gradle.testkit.runner.TaskOutcome.*
 
 class FunctionalTest extends Specification {
+	static String[] TEST_FILES = [
+			'build.gradle',
+			'settings.gradle',
+			'src/main/gentreesrc/Main.gts',
+			'src/test/gentreesrc/Test.gts',
+			'src/test/java/com/example/Test.java',
+	]
+
 	@Rule
 	TemporaryFolder testProjectDir = new TemporaryFolder()
 
-	def setup() {
-		testProjectDir.newFile('settings.gradle') << /* language=Groovy */ """
-		rootProject.name = 'test'
-		"""
+	@CompileStatic
+	void setup() {
+		final Path rootPath = testProjectDir.root.toPath()
+		for (final String fileName : TEST_FILES) {
+			final Path source = Paths.get('src/functionalTest/testfiles', fileName)
+			final Path target = rootPath.resolve(fileName)
 
-		testProjectDir.newFile('build.gradle') << /* language=Groovy */ """
-		plugins {
-			id 'java'
-			id 'de.clashsoft.gentreesrc-gradle'
-		}
-		
-		repositories {
-			jcenter()
-		}
-		
-		dependencies {
-			gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '+'
-			
-			// https://mvnrepository.com/artifact/junit/junit
-			testCompile group: 'junit', name: 'junit', version: '4.12'
-		}
-		"""
+			Files.createDirectories(target.parent)
 
-		testProjectDir.newFolder('src', 'main', 'gentreesrc')
-		testProjectDir.newFile('src/main/gentreesrc/Main.gts') << """
-		com.example.Foo {
-			Bar(text: String)
-			Baz(value: int)
+			try {
+				Files.createLink(target, source)
+			}
+			catch (UnsupportedOperationException ignored) {
+				Files.copy(source, target)
+			}
 		}
-		"""
-
-		testProjectDir.newFolder('src', 'test', 'gentreesrc')
-		testProjectDir.newFile('src/test/gentreesrc/Test.gts') << """
-		com.example.A {
-			B(a: A)
-		}
-		"""
 	}
 
+	@CompileStatic
 	BuildResult run() {
-		BuildResult result = GradleRunner.create()
-				.withProjectDir(testProjectDir.root)
-				.withArguments('check')
-				.withPluginClasspath()
-				.build()
+		try {
+			final BuildResult result = GradleRunner.create()
+					.withProjectDir(testProjectDir.root)
+					.withArguments('check')
+					.withPluginClasspath()
+					.build()
 
-		println "-" * 30 + " Gradle Output " + "-" * 30
-		println result.output
-		println "-" * 30 + " Project Files " + "-" * 30
-		testProjectDir.root.eachFileRecurse {
-			println it
+			println "-" * 30 + " Gradle Output " + "-" * 30
+			println result.output
+			println "-" * 30 + " Project Files " + "-" * 30
+			return result
 		}
-		println "-" * 75
-		return result
+		finally {
+			testProjectDir.root.eachFileRecurse(FileType.FILES) {
+				println it
+			}
+			println "-" * 75
+		}
 	}
 
 	def runsWithTestDir() {
-		given:
-		testProjectDir.newFolder('src', 'test', 'java', 'com', 'example')
-		testProjectDir.newFile('src/test/java/com/example/Test.java') << /* language=Java */"""
-		package com.example;
-
-		public class Test {
-			@org.junit.Test
-			public void test() {
-				Foo r = Bar.of("abc");
-				Foo z = Baz.of(123);
-				
-				A a = B.of(A.of());
-			}
-		}
-		"""
-
 		when:
 		def result = run()
 
