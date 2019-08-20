@@ -1,24 +1,22 @@
 package de.clashsoft.gentreesrc.gradle;
 
-import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
+import org.gradle.internal.MutableBoolean;
+import org.gradle.util.GFileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class GenTreeSrcTask extends DefaultTask
+public class GenTreeSrcTask extends SourceTask
 {
 	// =============== Fields ===============
 
 	private FileCollection classpath;
 
 	private File outputDirectory;
-	private File inputDirectory;
-
-	private boolean deleteOld = true;
 
 	private boolean visitPar     = true;
 	private boolean visitReturn  = true;
@@ -53,30 +51,7 @@ public class GenTreeSrcTask extends DefaultTask
 		this.outputDirectory = outputDirectory;
 	}
 
-	@InputDirectory
-	@SkipWhenEmpty
-	public File getInputDirectory()
-	{
-		return this.inputDirectory;
-	}
-
-	public void setInputDirectory(File inputDirectory)
-	{
-		this.inputDirectory = inputDirectory;
-	}
-
 	// --------------- Options ---------------
-
-	@Input
-	public boolean isDeleteOld()
-	{
-		return this.deleteOld;
-	}
-
-	public void setDeleteOld(boolean deleteOld)
-	{
-		this.deleteOld = deleteOld;
-	}
 
 	@Input
 	public boolean isVisitPar()
@@ -167,45 +142,64 @@ public class GenTreeSrcTask extends DefaultTask
 	// =============== Methods ===============
 
 	@TaskAction
-	public void execute()
+	public void execute(IncrementalTaskInputs inputs)
 	{
+		// adapted from AntlrTask.execute(IncrementalTaskInputs)
+
+		final Set<File> sourceFiles = this.getSource().getFiles();
+		final Set<File> inputFiles = new HashSet<>();
+		final MutableBoolean cleanRebuild = new MutableBoolean(false);
+
+		inputs.outOfDate(details -> {
+			File input = details.getFile();
+			if (sourceFiles.contains(input))
+			{
+				inputFiles.add(input);
+			}
+			else
+			{
+				cleanRebuild.set(true);
+			}
+		});
+
+		inputs.removed(details -> cleanRebuild.set(true));
+
+		if (cleanRebuild.get())
+		{
+			GFileUtils.cleanDirectory(this.getOutputDirectory());
+			inputFiles.addAll(sourceFiles);
+		}
+
 		this.getProject().javaexec(spec -> {
 			spec.setClasspath(this.getClasspath());
 			spec.setMain(GenTreeSrcPlugin.MAIN_CLASS_NAME);
 
-			final List<String> args = new ArrayList<>(this.getExtraArgs());
-			if (this.isDeleteOld())
-			{
-				args.add("--delete-old");
-			}
+			spec.args(this.extraArgs);
+
 			if (!this.visitPar)
 			{
-				args.add("--no-visit-par");
+				spec.args("--no-visit-par");
 			}
 			if (!this.visitReturn)
 			{
-				args.add("--visit-void");
+				spec.args("--visit-void");
 			}
 			if (this.visitDefault)
 			{
-				args.add("--visit-default");
+				spec.args("--visit-default");
 			}
 			if (this.visitParent)
 			{
-				args.add("--visit-parent");
+				spec.args("--visit-parent");
 			}
 			if (this.language != null)
 			{
-				args.add("--language");
-				args.add(this.language);
+				spec.args("--language", this.language);
 			}
 
-			args.add("-o");
-			args.add(this.getOutputDirectory().toString());
-			args.add("--");
-			args.add(this.getInputDirectory().toString());
-
-			spec.setArgs(args);
+			spec.args("-o", this.getOutputDirectory());
+			spec.args("--");
+			spec.args(inputFiles);
 		});
 	}
 }

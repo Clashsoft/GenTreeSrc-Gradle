@@ -54,7 +54,6 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 		// 1) Add a new 'gentreesrc' virtual directory mapping
 
 		final String srcDirName = "src/$sourceSet.name/gentreesrc"
-		final File srcDir = project.file(srcDirName)
 
 		final GenTreeSrcVirtualDirectoryImpl directoryDelegate = new GenTreeSrcVirtualDirectoryImpl((
 				(DefaultSourceSet) sourceSet).displayName, project.objects)
@@ -77,7 +76,7 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 
 			// 4) set up convention mapping for default sources (allows user to not have to specify)
 			it.outputDirectory = outputDir
-			it.inputDirectory = srcDir
+			it.source = directoryDelegate.genTreeSrc
 			it.classpath = project.configurations.getByName(CONFIGURATION_NAME)
 		} as Action<GenTreeSrcTask>)
 
