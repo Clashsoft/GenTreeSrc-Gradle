@@ -71,17 +71,17 @@ class GenTreeSrcPlugin implements Plugin<Project> {
 		final String outputDirName = "$project.buildDir/generated-src/gentreesrc/$sourceSet.name/java"
 		final File outputDir = project.file(outputDirName)
 
+		// 3) Set up the gentreesrc output directory (adding to javac inputs!)
+		sourceSet.java.srcDir(outputDir)
+
 		project.tasks.register(taskName, GenTreeSrcTask, { GenTreeSrcTask it ->
 			it.description = "Processes the $sourceSet.name GenTreeSrc definitions."
 
 			// 4) set up convention mapping for default sources (allows user to not have to specify)
-			it.outputDirectory = outputDir
 			it.source = directoryDelegate.genTreeSrc
-			it.classpath = project.configurations.getByName(CONFIGURATION_NAME)
+			it.outputDirectory = outputDir
+			it.toolClasspath = project.configurations.getByName(CONFIGURATION_NAME)
 		} as Action<GenTreeSrcTask>)
-
-		// 3) Set up the gentreesrc output directory (adding to javac inputs!)
-		sourceSet.java.srcDir(outputDir)
 
 		// 5) register fact that gentreesrc should be run before compiling
 		project.tasks.named(sourceSet.compileJavaTaskName) { Task it ->

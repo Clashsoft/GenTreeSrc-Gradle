@@ -14,7 +14,7 @@ public class GenTreeSrcTask extends SourceTask
 {
 	// =============== Fields ===============
 
-	private FileCollection classpath;
+	private FileCollection toolClasspath;
 
 	private File outputDirectory;
 
@@ -30,14 +30,14 @@ public class GenTreeSrcTask extends SourceTask
 	// =============== Properties ===============
 
 	@Classpath
-	public FileCollection getClasspath()
+	public FileCollection getToolClasspath()
 	{
-		return this.classpath;
+		return this.toolClasspath;
 	}
 
-	public void setClasspath(FileCollection classpath)
+	public void setToolClasspath(FileCollection toolClasspath)
 	{
-		this.classpath = classpath;
+		this.toolClasspath = toolClasspath;
 	}
 
 	@OutputDirectory
@@ -171,7 +171,7 @@ public class GenTreeSrcTask extends SourceTask
 		}
 
 		this.getProject().javaexec(spec -> {
-			spec.setClasspath(this.getClasspath());
+			spec.setClasspath(this.getToolClasspath());
 			spec.setMain(GenTreeSrcPlugin.MAIN_CLASS_NAME);
 
 			spec.args(this.extraArgs);
