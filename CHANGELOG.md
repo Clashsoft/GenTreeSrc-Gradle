@@ -37,3 +37,8 @@
 + Added a dedicated `GenTreeSrcTask` type. #7
 * GenTreeSrc tasks are no longer debuggable. #8
 * The `gentreesrc` configuration is now created lazily.
+
+# GenTreeSrc Gradle Plugin v0.6.0
+
+* The `GenTreeSrcTask` now supports incremental compilation. #9
+* The `GenTreeSrcTask` now supports include and exclude patterns. #10
