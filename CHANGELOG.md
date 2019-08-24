@@ -42,3 +42,7 @@
 
 * The `GenTreeSrcTask` now supports incremental compilation. #9
 * The `GenTreeSrcTask` now supports include and exclude patterns. #10
+
+# GenTreeSrc Gradle Plugin v0.7.0
+
++ Added a way to convert `GenTreeSrcTask`s to `JavaExec`s.
