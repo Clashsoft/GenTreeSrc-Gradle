@@ -5,6 +5,7 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 import org.gradle.internal.MutableBoolean;
+import org.gradle.process.JavaExecSpec;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
@@ -171,35 +172,40 @@ public class GenTreeSrcTask extends SourceTask
 		}
 
 		this.getProject().javaexec(spec -> {
-			spec.setClasspath(this.getToolClasspath());
-			spec.setMain(GenTreeSrcPlugin.MAIN_CLASS_NAME);
-
-			spec.args(this.extraArgs);
-
-			if (!this.visitPar)
-			{
-				spec.args("--no-visit-par");
-			}
-			if (!this.visitReturn)
-			{
-				spec.args("--visit-void");
-			}
-			if (this.visitDefault)
-			{
-				spec.args("--visit-default");
-			}
-			if (this.visitParent)
-			{
-				spec.args("--visit-parent");
-			}
-			if (this.language != null)
-			{
-				spec.args("--language", this.language);
-			}
-
-			spec.args("-o", this.getOutputDirectory());
+			this.configureOptions(spec);
 			spec.args("--");
 			spec.args(inputFiles);
 		});
+	}
+
+	public void configureOptions(JavaExecSpec spec)
+	{
+		spec.setClasspath(this.getToolClasspath());
+		spec.setMain(GenTreeSrcPlugin.MAIN_CLASS_NAME);
+
+		spec.args(this.extraArgs);
+
+		if (!this.visitPar)
+		{
+			spec.args("--no-visit-par");
+		}
+		if (!this.visitReturn)
+		{
+			spec.args("--visit-void");
+		}
+		if (this.visitDefault)
+		{
+			spec.args("--visit-default");
+		}
+		if (this.visitParent)
+		{
+			spec.args("--visit-parent");
+		}
+		if (this.language != null)
+		{
+			spec.args("--language", this.language);
+		}
+
+		spec.args("-o", this.getOutputDirectory());
 	}
 }
