@@ -5,10 +5,13 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 import org.gradle.internal.MutableBoolean;
+import org.gradle.internal.file.Deleter;
 import org.gradle.process.JavaExecSpec;
-import org.gradle.util.GFileUtils;
 
+import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 public class GenTreeSrcTask extends SourceTask
@@ -167,7 +170,14 @@ public class GenTreeSrcTask extends SourceTask
 
 		if (cleanRebuild.get())
 		{
-			GFileUtils.cleanDirectory(this.getOutputDirectory());
+			try
+			{
+				this.getDeleter().ensureEmptyDirectory(this.getOutputDirectory());
+			}
+			catch (IOException ex)
+			{
+				throw new UncheckedIOException(ex);
+			}
 			inputFiles.addAll(sourceFiles);
 		}
 
@@ -207,5 +217,11 @@ public class GenTreeSrcTask extends SourceTask
 		}
 
 		spec.args("-o", this.getOutputDirectory());
+	}
+
+	@Inject
+	protected Deleter getDeleter()
+	{
+		throw new UnsupportedOperationException("Decorator takes care of injection");
 	}
 }
