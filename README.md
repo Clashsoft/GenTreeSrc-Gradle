@@ -14,11 +14,14 @@ and can be installed via the `plugins` DSL in `build.gradle`:
 plugins {
 	// ...
 	id 'java'
-	id 'de.clashsoft.gentreesrc-gradle' version '0.7.0'
+	id 'de.clashsoft.gentreesrc-gradle' version '0.8.0'
 	// ...
 }
 
 // ...
 ```
+
+The plugin requires JDK 8 or later.
+Starting with v0.8.0, you need to use Gradle 6 or later.
 
 See the [GenTreeSrc README](https://github.com/Clashsoft/GenTreeSrc/blob/master/README.md) for tool usage instructions.

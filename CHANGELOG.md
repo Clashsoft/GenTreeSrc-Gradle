@@ -46,3 +46,9 @@
 # GenTreeSrc Gradle Plugin v0.7.0
 
 + Added a way to convert `GenTreeSrcTask`s to `JavaExec`s.
+
+# GenTreeSrc Gradle Plugin v0.8.0
+
+> This version is incompatible with Gradle versions < 6.
+
+* Added support for and increased the minimum Gradle version to 6.
